@@ -1,34 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "Updating system and installing dependencies..."
-sudo pacman -Syu --noconfirm git base-devel
+echo "Installing dependencies..."
+sudo pacman -Syu --noconfirm git base-devel linux-headers dkms
 
-echo "Cloning mbp2016-bridge repository..."
-git clone https://github.com/mbp2016-linux/mbp2016-bridge.git
-cd mbp2016-bridge
+echo "Cloning macbook12-spi-driver repo..."
+git clone https://github.com/PatrickVerner/macbook12-spi-driver.git
+cd macbook12-spi-driver
 
-echo "Building and installing mbp2016-bridge..."
-make
-sudo make install
+echo "Installing module with DKMS..."
+sudo ./install.sh
 
-echo "Enabling and starting mbp2016-bridge.service..."
-sudo systemctl enable mbp2016-bridge.service
-sudo systemctl start mbp2016-bridge.service
+echo "Loading apple-ib-tb module..."
+sudo modprobe apple_ib_tb
 
-cd ..
+echo "Touch Bar basic support should now be active."
 
-echo "Cloning mbp2016-touchbar repository..."
-git clone https://github.com/mbp2016-linux/mbp2016-touchbar.git
-cd mbp2016-touchbar
-
-echo "Building and installing mbp2016-touchbar..."
-make
-sudo make install
-
-echo "Setup complete!"
-echo "You can run the Touch Bar client now with: mbp2016-touchbar"
-echo "Consider adding it to your autostart to launch on login."
-
-# Optional: To run the client now automatically:
-# mbp2016-touchbar &
+echo "You can check with: lsmod | grep apple_ib_tb"
